@@ -15,6 +15,7 @@ class FirstProjectSketch(vsketch.SketchClass):
     min_radius = vsketch.Param(2.0)
     max_radius = vsketch.Param(100.0)
     num_attempts = vsketch.Param(500, step=1)
+    percent_filled = vsketch.Param(0.75,step=0.5)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a4", landscape=True)
