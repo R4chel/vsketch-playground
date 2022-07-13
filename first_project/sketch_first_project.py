@@ -10,7 +10,7 @@ class FirstProjectSketch(vsketch.SketchClass):
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a4", landscape=True)
-        vsk.scale("cm")
+        vsk.scale("px")
 
         # document = vsk.document
         # help(document)
@@ -21,7 +21,8 @@ class FirstProjectSketch(vsketch.SketchClass):
         # implement your sketch here
         shapes = []
         # points = [Point(vsk.random(xmin,xmax), vsk.random(ymin,ymax)) for i in range(self.num_shapes)]
-        points = [Point(0,0) for i in range(self.num_shapes)]
+        # points = [Point(0,0) for i in range(self.num_shapes)]
+        points = [Point(vsk.random(0,vsk.width), vsk.random(0,vsk.height)) for i in range(self.num_shapes)]
         for p in points:
             radius = vsk.random(self.min_radius, self.max_radius)
             #circle = p.buffer(radius)
