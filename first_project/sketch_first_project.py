@@ -1,36 +1,39 @@
 import vsketch
-from shapely.geometry import Point
+from shapely.geometry import Point, box
 
 
 class FirstProjectSketch(vsketch.SketchClass):
     # Sketch parameters:
     min_radius = vsketch.Param(2.0)
-    max_radius = vsketch.Param(10.0)
-    num_shapes = vsketch.Param(5, step=1)
+    max_radius = vsketch.Param(100.0)
+    num_attempts = vsketch.Param(5, step=1)
+
+    def distance_to_edge(self, vsk: vsketch.Vsketch, point):
+        xmin = 0
+        xmax = vsk.width
+        ymin = 0
+        ymax = vsk.height
+        return min([point.x-xmin, xmax-point.x, point.y-ymin, ymax - point.y])
+
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a4", landscape=True)
         vsk.scale("px")
 
-        # document = vsk.document
-        # help(document)
-
-        # bounds = vsk.document.bounds()
-        # help(bounds)
-        # (xmin, xmax, ymin, ymax)  = bounds
-        # implement your sketch here
         shapes = []
-        # points = [Point(vsk.random(xmin,xmax), vsk.random(ymin,ymax)) for i in range(self.num_shapes)]
-        # points = [Point(0,0) for i in range(self.num_shapes)]
-        points = [Point(vsk.random(0,vsk.width), vsk.random(0,vsk.height)) for i in range(self.num_shapes)]
-        for p in points:
-            radius = vsk.random(self.min_radius, self.max_radius)
-            #circle = p.buffer(radius)
-            #vsk.geometry(circle)
 
-            vsk.circle(p.x,p.y,radius, mode="radius")
+        for i in range(self.num_attempts):
+            point = Point(vsk.random(0,vsk.width), vsk.random(0,vsk.height))
+            distances = [point.distance(s) for s in shapes]
+            min_distance = min(distances+[self.distance_to_edge(vsk, point), self.max_radius])
+            if min_distance > self.min_radius:
+                circle = point.buffer(min_distance)
+                shapes.append(circle)
 
-            # vsk.circle(0, 0, vsk.random(self.min_radius,self.max_radius), mode="radius")
+        for shape in shapes:
+            vsk.geometry(shape)
+
+
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
