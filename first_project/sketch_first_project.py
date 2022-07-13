@@ -2,19 +2,19 @@ import vsketch
 from shapely.geometry import Point, box
 
 
+def distance_to_edge(vsk: vsketch.Vsketch, point):
+    xmin = 0
+    xmax = vsk.width
+    ymin = 0
+    ymax = vsk.height
+    return min([point.x - xmin, xmax - point.x, point.y - ymin, ymax - point.y])
+
+
 class FirstProjectSketch(vsketch.SketchClass):
     # Sketch parameters:
     min_radius = vsketch.Param(2.0)
     max_radius = vsketch.Param(100.0)
-    num_attempts = vsketch.Param(5, step=1)
-
-    def distance_to_edge(self, vsk: vsketch.Vsketch, point):
-        xmin = 0
-        xmax = vsk.width
-        ymin = 0
-        ymax = vsk.height
-        return min([point.x-xmin, xmax-point.x, point.y-ymin, ymax - point.y])
-
+    num_attempts = vsketch.Param(500, step=1)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a4", landscape=True)
@@ -25,7 +25,7 @@ class FirstProjectSketch(vsketch.SketchClass):
         for i in range(self.num_attempts):
             point = Point(vsk.random(0,vsk.width), vsk.random(0,vsk.height))
             distances = [point.distance(s) for s in shapes]
-            min_distance = min(distances+[self.distance_to_edge(vsk, point), self.max_radius])
+            min_distance = min(distances+[distance_to_edge(vsk, point), self.max_radius])
             if min_distance > self.min_radius:
                 circle = point.buffer(min_distance)
                 shapes.append(circle)
