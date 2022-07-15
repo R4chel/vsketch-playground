@@ -14,7 +14,7 @@ class MyShape:
     def __init__(self, point, r):
         self.center = point
         self.r = r
-        self.shapely = self.center.buffer(self.r)
+        self.shapely = point.buffer(self.r)
         self.area = self.shapely.area
 
     def to_shape(self, vsk: vsketch.Vsketch):
@@ -29,7 +29,7 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
     max_radius = vsketch.Param(100.0)
 
     target_percent_filled = vsketch.Param(0.75, step=0.5)
-    max_attempts = vsketch.Param(1, step=100)
+    max_attempts = vsketch.Param(100, step=100)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a4", landscape=True)
@@ -42,7 +42,8 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
         attempt = 0
         while area_filled < target_area_filled and attempt < self.max_attempts:
             point = Point(vsk.random(0, vsk.width), vsk.random(0, vsk.height))
-            distances = [point.distance(shape.center) for shapes in shapes]
+            distances = [point.distance(shape.shapely) for shape in shapes]
+            print(point, distances)
             min_distance = min(distances + [distance_to_edge(vsk, point), self.max_radius])
             if min_distance > self.min_radius:
                 shape = MyShape(point, min_distance)

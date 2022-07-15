@@ -38,7 +38,6 @@ class FirstProjectSketch(vsketch.SketchClass):
                 circles.append(circle)
             attempt += 1
 
-        vsk.fil
         for circle in circles:
             vsk.fill(1)
             vsk.geometry(circle)
