@@ -1,6 +1,6 @@
 import vsketch
 from shapely.geometry import Point, box
-
+import math
 
 def distance_to_edge(vsk: vsketch.Vsketch, point):
     xmin = 0
@@ -20,6 +20,11 @@ class MyShape:
     def to_shape(self, vsk: vsketch.Vsketch):
         shape = vsk.createShape()
         shape.circle(self.center.x, self.center.y, radius=self.r)
+        levels = math.floor(abs(vsk.randomGaussian()) * self.r)
+        for i in range(levels):
+            r = self.r * vsk.random(0,1)
+            shape.arc(self.center.x,self.center.y,r, r, vsk.random(0,360), vsk.random(0,360), degrees=True, mode="radius")
+
         return shape
 
 
@@ -32,8 +37,10 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
     max_attempts = vsketch.Param(100, step=100)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
+
         vsk.size("a4", landscape=True)
         vsk.scale("px")
+        # vsk.ellipseMode("radius")
 
         shapes = []
         total_area = vsk.width * vsk.height
