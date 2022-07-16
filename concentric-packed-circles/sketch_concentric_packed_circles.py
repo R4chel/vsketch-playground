@@ -17,12 +17,14 @@ class MyShape:
         self.shapely = point.buffer(self.r)
         self.area = self.shapely.area
 
-    def to_shape(self, vsk: vsketch.Vsketch):
+    def to_arcs(self, vsk: vsketch.Vsketch, ring_ratio, step_size):
         shape = vsk.createShape()
-        shape.circle(self.center.x, self.center.y, radius=self.r)
-        levels = math.floor(abs(vsk.randomGaussian()) * self.r)
+        shape.arc(self.center.x, self.center.y, self.r, self.r, vsk.random(0,360), vsk.random(0,360), degrees=True, mode="radius")
+
+        levels = math.floor(abs(vsk.randomGaussian()) * self.r / ring_ratio)
         for i in range(levels):
             r = self.r * vsk.random(0,1)
+            r = step_size * round(r/step_size)
             shape.arc(self.center.x,self.center.y,r, r, vsk.random(0,360), vsk.random(0,360), degrees=True, mode="radius")
 
         return shape
@@ -33,12 +35,15 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
     min_radius = vsketch.Param(2.0)
     max_radius = vsketch.Param(100.0)
 
+    ring_ratio = vsketch.Param(5, step =1 )
+    step_size = vsketch.Param(5,step=1)
     target_percent_filled = vsketch.Param(0.75, step=0.5)
     max_attempts = vsketch.Param(100, step=100)
 
+
     def draw(self, vsk: vsketch.Vsketch) -> None:
 
-        vsk.size("a4", landscape=True)
+        vsk.size("a3", landscape=True)
         vsk.scale("px")
         # vsk.ellipseMode("radius")
 
@@ -58,7 +63,7 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
                 shapes.append(shape)
             attempt += 1
 
-        shapes = [shape.to_shape(vsk) for shape in shapes]
+        shapes = [shape.to_arcs(vsk, self.ring_ratio, self.step_size) for shape in shapes]
 
         for shape in shapes:
             vsk.shape(shape)

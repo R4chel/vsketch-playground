@@ -20,7 +20,7 @@ class FirstProjectSketch(vsketch.SketchClass):
 
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
-        vsk.size("a4", landscape=True)
+        vsk.size("a3", landscape=True)
         vsk.scale("px")
 
         circles = []
