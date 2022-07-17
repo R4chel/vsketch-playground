@@ -17,6 +17,9 @@ class MyShape:
         self.shapely = point.buffer(self.r)
         self.area = self.shapely.area
 
+    def draw(self, vsk: vsketch.Vsketch, draw_mode, ring_ratio, step_size):
+        return draw_mode_options[draw_mode](self, vsk,  ring_ratio, step_size)
+
     def to_arcs(self, vsk: vsketch.Vsketch, ring_ratio, step_size):
         shape = vsk.createShape()
         shape.arc(self.center.x, self.center.y, self.r, self.r, vsk.random(0,360), vsk.random(0,360), degrees=True, mode="radius")
@@ -29,6 +32,16 @@ class MyShape:
 
         return shape
 
+    def to_circle(self, vsk: vsketch.Vsketch, _ring_ratio, _step_size):
+        shape = vsk.createShape()
+        shape.circle(self.center.x, self.center.y, radius=self.r)
+
+        return shape
+
+draw_mode_options = {"arcs" : MyShape.to_arcs, "circle" : MyShape.to_circle}
+
+
+
 
 class ConcentricPackedCirclesSketch(vsketch.SketchClass):
     # Sketch parameters:
@@ -39,7 +52,7 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
     step_size = vsketch.Param(5,step=1)
     target_percent_filled = vsketch.Param(0.75, step=0.5)
     max_attempts = vsketch.Param(100, step=100)
-
+    draw_mode = vsketch.Param("arcs", choices=draw_mode_options.keys())
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
 
@@ -55,7 +68,6 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
         while area_filled < target_area_filled and attempt < self.max_attempts:
             point = Point(vsk.random(0, vsk.width), vsk.random(0, vsk.height))
             distances = [point.distance(shape.shapely) for shape in shapes]
-            print(point, distances)
             min_distance = min(distances + [distance_to_edge(vsk, point), self.max_radius])
             if min_distance > self.min_radius:
                 shape = MyShape(point, min_distance)
@@ -63,10 +75,8 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
                 shapes.append(shape)
             attempt += 1
 
-        shapes = [shape.to_arcs(vsk, self.ring_ratio, self.step_size) for shape in shapes]
-
         for shape in shapes:
-            vsk.shape(shape)
+            vsk.shape(shape.draw(vsk, self.draw_mode, self.ring_ratio, self.step_size))
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
