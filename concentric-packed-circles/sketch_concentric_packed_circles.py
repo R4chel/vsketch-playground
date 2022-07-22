@@ -5,6 +5,9 @@ import math
 def flatten(xss):
     return [x for xs in xss for x in xs]
 
+def rand_int(vsk:vsketch.Vsketch, low, high):
+    return math.floor(vsk.random(low, high+1))
+
 def distance_to_edge(vsk: vsketch.Vsketch, point):
     xmin = 0
     xmax = vsk.width
@@ -111,8 +114,8 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
                 shape.maybe_add_child(vsk, self.min_radius)
                 
             inner_shapes = shape.draw(vsk, self.draw_mode, self.ring_ratio, self.step_size, self.min_radius)
-            for i, inner_shape in enumerate(inner_shapes):
-                layer = (i % self.num_layers) + 1
+            for inner_shape in inner_shapes:
+                layer = rand_int(vsk, 1, self.num_layers)
                 vsk.stroke(layer)
                 vsk.shape(inner_shape)
 
