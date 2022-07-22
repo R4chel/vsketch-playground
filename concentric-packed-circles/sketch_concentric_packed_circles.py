@@ -68,6 +68,20 @@ class MyShape:
             new_shape = MyShape(point, new_radius)
             self.children.append(new_shape)
 
+
+    def maybe_add_children(self, vsk, min_radius, probability, attempts):
+        angle = vsk.random(0, 360)
+        offset = self.r * math.sqrt(vsk.random(0.05, 0.95))
+        new_center = to_cartesian(offset, angle)
+        point = Point(self.center.x + new_center.x, self.center.y + new_center.y)
+        new_radius = max_possible_radius(vsk, self.children, self.r, self.r - offset, point)
+        if new_radius >= min_radius:
+            new_shape = MyShape(point, new_radius)
+            self.children.append(new_shape)
+            for i in range(attempts):
+                if vsk.random(0,1 ) < probability:
+                    new_shape.maybe_add_children(vsk, min_radius, probability , attempts -1 )
+
 draw_mode_options = {"arcs": MyShape.to_arcs, "circles": MyShape.to_circles, "tangents": MyShape.to_tangents}
 
 def max_possible_radius(vsk: vsketch.Vsketch, existing_circles, max_allowed_radius, distance_to_edge, point):
@@ -87,6 +101,7 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
     draw_mode = vsketch.Param("tangents", choices=draw_mode_options.keys())
     max_child_attempts = vsketch.Param(5, step = 1)
     num_layers= vsketch.Param(1, step=1)
+    recursive_probability= vsketch.Param(0.75, step=0.5)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
 
@@ -111,7 +126,7 @@ class ConcentricPackedCirclesSketch(vsketch.SketchClass):
         for shape in shapes:
 
             for i in range(self.max_child_attempts):
-                shape.maybe_add_child(vsk, self.min_radius)
+                shape.maybe_add_children(vsk, self.min_radius, self.recursive_probability, self.max_child_attempts)
                 
             inner_shapes = shape.draw(vsk, self.draw_mode, self.ring_ratio, self.step_size, self.min_radius)
             for inner_shape in inner_shapes:
