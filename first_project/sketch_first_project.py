@@ -39,7 +39,7 @@ class FirstProjectSketch(vsketch.SketchClass):
             attempt += 1
 
         for circle in circles:
-            vsk.fill(1)
+
             vsk.geometry(circle)
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
