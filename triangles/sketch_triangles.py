@@ -10,7 +10,7 @@ class TrianglesSketch(vsketch.SketchClass):
     steps = vsketch.Param(50)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
-        vsk.size("a5", landscape=True)
+        vsk.size("a6", landscape=True)
         vsk.scale("cm")
 
         # implement your sketch here
