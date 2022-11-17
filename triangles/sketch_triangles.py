@@ -11,17 +11,22 @@ class TrianglesSketch(vsketch.SketchClass):
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a6", landscape=True)
-        vsk.scale("cm")
+        vsk.scale("px")
 
+        
         # implement your sketch here
         xmin = 0
         xmax = vsk.width
         ymin = 0
         ymax = vsk.height
-        p0 = Point(vsk.random(xmin,xmax), vsk.random(ymin,ymax))
+        vsk.rect(0,0,vsk.width, vsk.height, mode="corner")
+        p0 = Point(vsk.random(xmax), vsk.random(ymax))
+
+        vsk.rect(0,0,vsk.width, vsk.height, mode="corner")
         angle_delta = math.pi * (1.0 - self.angle_ish_N/self.angle_ish_D )
         angle = vsk.random(0, 2 * math.pi)
         step_size = self.step_increment
+
         for i in range(self.steps):
             p1 = Point(p0.x + step_size*math.cos(angle), p0.y + step_size*math.sin(angle))
             vsk.line(p0.x, p0.y,p1.x,p1.y)
