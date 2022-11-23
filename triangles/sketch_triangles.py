@@ -2,12 +2,29 @@ import vsketch
 from shapely.geometry import Point
 import math
 import vpype as vp
+
+
+class Connector:
+    def __init__(p1, p2):
+        self.p1 = p1
+        self.p2 = p2
+
+    def line(self, vsk : vsketch.Vsketch):
+        vsk.line(p1.x,p1.y,p2.x,p2.y)
+
+
+path_mode_options = {"line": Connector.line }
+
 class TrianglesSketch(vsketch.SketchClass):
     # Sketch parameters:
     step_increment = vsketch.Param(5.0)
     angle_ish_N = vsketch.Param(1)
     angle_ish_D = vsketch.Param(3)
     steps = vsketch.Param(50)
+    path_mode = vsketch.Param("path", choices=path_mode_options.keys())
+
+    def connect(self, vsk:vsketch.Vsketch, p1 : Point, p2 : Point):
+        return
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a6", landscape=True)

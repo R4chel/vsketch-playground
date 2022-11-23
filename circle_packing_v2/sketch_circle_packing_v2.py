@@ -1,6 +1,16 @@
 import vsketch
 from shapely.geometry import Point, box
 
+class Connector:
+    def __init__(p1, p2):
+        self.p1 = p1
+        self.p2 = p2
+
+    def line(self, vsk : vsketch.Vsketch):
+        vsk.line(p1.x,p1.y,p2.x,p2.y)
+
+
+
 class CirclePackingV2Sketch(vsketch.SketchClass):
     # Sketch parameters:
     min_radius = vsketch.Param(2.0)
